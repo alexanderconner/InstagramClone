@@ -147,6 +147,8 @@ public class ParseExamples {
 
 
     //Log in user in Background
+
+
 //            ParseUser.logInInBackground("alexconner", "1234", new LogInCallback() {
 //        @Override
 //        public void done(ParseUser user, ParseException e) {
@@ -157,6 +159,16 @@ public class ParseExamples {
 //            }
 //        }
 //    });
+
+    //Log out a user.
+//            ParseUser.logOut();
+//
+//
+//        if (ParseUser.getCurrentUser() != null) {
+//        Log.i("currentUser", "User Logged in" + ParseUser.getCurrentUser().getUsername());
+//    } else {
+//        Log.i("currentUser", "User not logged in");
+//    }
 
 
 }

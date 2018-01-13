@@ -13,7 +13,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
@@ -34,23 +37,78 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    EditText usernameText;
+    EditText passwordText;
+    Button loginButton;
+    TextView switchLoginTextView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ParseUser.logOut();
+        usernameText = (EditText) findViewById(R.id.usernameEditText);
+        passwordText = (EditText) findViewById(R.id.passwordEditText);
+        loginButton = (Button) findViewById(R.id.loginButton);
+        switchLoginTextView = (TextView) findViewById(R.id.switchLoginTextView);
 
-
-        if (ParseUser.getCurrentUser() != null) {
-            Log.i("currentUser", "User Logged in" + ParseUser.getCurrentUser().getUsername());
-        } else {
-            Log.i("currentUser", "User not logged in");
-        }
+        //Set Listeners
+        loginButton.setOnClickListener(loginListener);
+        switchLoginTextView.setOnClickListener(switchLoginTextListener);
 
         //This is necessary for running in the background
         ParseAnalytics.trackAppOpenedInBackground(getIntent());
     }
+
+    //This is called by loginListener and only if Button says Login
+    protected void login(View view){
+
+        //Log in user in Background
+
+        ParseUser.logInInBackground(usernameText.getText().toString(), passwordText.getText().toString(), new LogInCallback(){
+
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                if (user != null) {
+                    Log.i("Login", "Successful");
+                } else {
+                    Log.i("Login", "Login Failed " + e.toString());
+                }
+            }
+        });
+    }
+
+    Button.OnClickListener loginListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            login(v);
+        }
+    };
+
+
+    //This is called by SignUpListener and only called if Login Button is set to Sign Up
+    Button.OnClickListener signUpListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Log.i("Login", "Signed up Test");
+        }
+    };
+
+    TextView.OnClickListener switchLoginTextListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (loginButton.getText().toString().equals("Login"))
+            {
+                loginButton.setText("Sign Up");
+                switchLoginTextView.setText("Or, Login");
+                loginButton.setOnClickListener(signUpListener);
+            } else {
+                loginButton.setText("Login");
+                switchLoginTextView.setText("Or, Sign Up");
+                loginButton.setOnClickListener(loginListener);
+            }
+        }
+    };
 
 }

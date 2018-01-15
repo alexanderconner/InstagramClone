@@ -10,11 +10,15 @@ package com.parse.starter;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,12 +39,14 @@ import com.parse.SignUpCallback;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnKeyListener, View.OnClickListener {
 
     EditText usernameText;
     EditText passwordText;
     Button loginButton;
+    ConstraintLayout mainLayout;
     TextView switchLoginTextView;
+    ImageView logoImageView;
 
 
     @Override
@@ -48,14 +54,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setTitle("Instagram Clone");
         usernameText = (EditText) findViewById(R.id.usernameEditText);
         passwordText = (EditText) findViewById(R.id.passwordEditText);
         loginButton = (Button) findViewById(R.id.loginButton);
         switchLoginTextView = (TextView) findViewById(R.id.switchLoginTextView);
+        mainLayout = (ConstraintLayout) findViewById(R.id.mainLayout);
+        logoImageView = (ImageView) findViewById(R.id.logoImageView);
 
         //Set Listeners
         loginButton.setOnClickListener(loginListener);
         switchLoginTextView.setOnClickListener(switchLoginTextListener);
+        passwordText.setOnKeyListener(this);
+        mainLayout.setOnClickListener(this);
+        logoImageView.setOnClickListener(this);
 
         //This is necessary for running in the background
         ParseAnalytics.trackAppOpenedInBackground(getIntent());
@@ -65,18 +77,30 @@ public class MainActivity extends AppCompatActivity {
     protected void login(View view){
 
         //Log in user in Background
+        final String username =  usernameText.getText().toString();
+        if (username.matches("") || passwordText.getText().toString().matches("")) {
+            Toast.makeText(this, "A username and password are required to login.", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            ParseUser.logInInBackground(usernameText.getText().toString(), passwordText.getText().toString(), new LogInCallback(){
 
-        ParseUser.logInInBackground(usernameText.getText().toString(), passwordText.getText().toString(), new LogInCallback(){
-
-            @Override
-            public void done(ParseUser user, ParseException e) {
-                if (user != null) {
-                    Log.i("Login", "Successful");
-                } else {
-                    Log.i("Login", "Login Failed " + e.toString());
+                @Override
+                public void done(ParseUser user, ParseException e) {
+                    if (user != null) {
+                        Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                        Log.i("Login", "Successful");
+                        usernameText.setText("");
+                        passwordText.setText("");
+                        openHomePage(username);
+                    } else {
+                        Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.i("Login", "Login Failed " + e.toString());
+                        passwordText.setText("");
+                    }
                 }
-            }
-        });
+            });
+        }
+
     }
 
     Button.OnClickListener loginListener = new View.OnClickListener() {
@@ -88,10 +112,38 @@ public class MainActivity extends AppCompatActivity {
 
 
     //This is called by SignUpListener and only called if Login Button is set to Sign Up
+    protected void signUp(View view){
+
+        //Log in user in Background
+
+        if (usernameText.getText().toString().matches("") || passwordText.getText().toString().matches("")) {
+            Toast.makeText(this, "A username and password are required to sign up.", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            //Create a user
+//          ParseUser user = new ParseUser();
+//
+//        user.setUsername("alexconner");
+//        user.setPassword("1234");
+//
+//        user.signUpInBackground(new SignUpCallback() {
+//        @Override
+//        public void done(ParseException e) {
+//            if (e == null) {
+//                Log.i("Sign Up", "Successful");
+//
+//            } else {
+//                Log.i("Sign Up", "Failed");
+//            }
+//        }
+//       });
+        }
+    }
+
     Button.OnClickListener signUpListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.i("Login", "Signed up Test");
+            signUp(v);
         }
     };
 
@@ -111,4 +163,33 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    /*
+     * Called when user presses enter on password editText
+     */
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        // Check when entered, but also make sure the event was a down press, bc event is triggered twice by the release
+        if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == event.ACTION_DOWN) {
+            signUp(v);
+        }
+        return false;
+    }
+
+    //Called when user touches Background or ImageView
+    @Override
+    public void onClick(View v) {
+
+        if (v.getId() == R.id.mainLayout || v.getId() == R.id.background_image_view) {
+            //Allows us to manage method of input
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            //Hide softkeyboard from window
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+    }
+
+    protected void openHomePage(String username){
+        Intent homeIntent = new Intent(this, homePageActivity.class);
+        homeIntent.putExtra("username", username);
+        startActivity(homeIntent);
+    }
 }

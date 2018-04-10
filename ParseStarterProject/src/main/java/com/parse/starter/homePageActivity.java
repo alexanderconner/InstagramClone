@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -57,6 +59,11 @@ public class homePageActivity extends AppCompatActivity {
             } else {
                 getPhoto();
             }
+        } else if (item.getItemId() == R.id.logout) {
+            ParseUser.logOut();
+
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -72,7 +79,7 @@ public class homePageActivity extends AppCompatActivity {
 
         ListView userListView = (ListView) findViewById(R.id.userListView);
 
-        ArrayList<String> usernames = getFriends();
+        final ArrayList<String> usernames = getFriends();
 
         if (usernames.isEmpty()){
             usernames.add("Don't be a lurker, add some friends!");
@@ -81,6 +88,17 @@ public class homePageActivity extends AppCompatActivity {
         ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, usernames);
 
         userListView.setAdapter(arrayAdapter);
+
+        userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String user = usernames.get(i);
+                Intent intent = new Intent(homePageActivity.this, UserPage.class);
+                intent.putExtra("user", user);
+                startActivity(intent);
+
+            }
+        });
     }
 
     protected ArrayList getFriends() {

@@ -33,7 +33,7 @@ public class StarterApplication extends Application {
 
          Setting Bitnami application password to 'de4nbrY16leY'         #
 #        (the default application username is 'user')
-        App is serverURL/login
+        App is 52.205.60.150/login
 
      */
 
@@ -49,7 +49,7 @@ public class StarterApplication extends Application {
     Parse.initialize(new Parse.Configuration.Builder(getApplicationContext())
             .applicationId("95d692b80760d4ca8389a04b36e84dcd42c09d21")
             .clientKey("fd8902d60f7afb92b6fc795770ed590af1aa7254")
-            .server("http://54.164.189.118/parse/")
+            .server("http://52.205.60.150/parse/")
             .build()
     );
 

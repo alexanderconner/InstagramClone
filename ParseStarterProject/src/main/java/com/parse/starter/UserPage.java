@@ -10,8 +10,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
@@ -21,6 +23,7 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -33,7 +36,10 @@ public class UserPage extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final LinearLayout linearLayout = (LinearLayout) findViewById(R.id.userLinearLayout);
+        final ListView userPostListView = (ListView) findViewById(R.id.userPostList);
+        final ArrayList<Post> userPostList = new ArrayList<>();
+        final PostListAdapter postListAdapter = new PostListAdapter(this, userPostList);
+
 
         Intent intent = getIntent();
         String activeUsername = intent.getStringExtra("user");
@@ -56,28 +62,39 @@ public class UserPage extends AppCompatActivity {
 
                     if (objects.size() > 0) //We got the images
                     {
-                        for (ParseObject object : objects) {
-                            ParseFile file = (ParseFile) object.get("image");
-                            file.getDataInBackground(new GetDataCallback() {
+                            for (ParseObject object : objects) {
+
+                                final String pictureID = (String) object.get("objectID");
+                                final String postAuthor = (String) object.get("username");
+                                final String exampledate = "11-11-1111";
+
+                                final ArrayList<String> exampleComments = new ArrayList<String>();
+
+                                for (int index = 1; index <= 5; index ++)
+                                {
+                                    exampleComments.add("Example Comment " + index);
+                                }
+
+
+                                userPostList.add(new Post(pictureID, null, "userIDhere", postAuthor, exampleComments, exampledate));
+                                /*
+                                ParseFile file = (ParseFile) object.get("image");
+                                file.getDataInBackground(new GetDataCallback() {
                                 @Override
                                 public void done(byte[] data, ParseException e) {
                                     if (e == null && data != null) {
                                         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 
-                                        ImageView imageView = new ImageView(getApplicationContext());
-
-                                        imageView.setLayoutParams(new ViewGroup.LayoutParams(
-                                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                                ViewGroup.LayoutParams.WRAP_CONTENT
-                                        ));
-
-                                        imageView.setImageBitmap(bitmap);
-
-                                        linearLayout.addView(imageView);
+                                        userPostList.add(new Post(pictureID, bitmap, "userIDhere", postAuthor, exampleComments, exampledate));
                                     }
                                 }
-                            });
+                            }); */
+
                         }
+
+                        userPostListView.setAdapter(postListAdapter);
+
+
                     } else {
                         Toast.makeText(UserPage.this, "This user hasn't uploaded any images! :/", Toast.LENGTH_SHORT).show();
                     }

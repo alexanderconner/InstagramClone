@@ -144,7 +144,7 @@ public class homePageActivity extends AppCompatActivity {
     }
 
     /*
-    Called after photo is picked.
+    Called after photo is picked to be uploaded
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
